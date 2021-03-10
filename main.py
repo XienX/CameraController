@@ -27,8 +27,6 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.timer_camera = QTimer()  # 初始化定时器
         self.timer_camera.start(40)
 
-        self.connect = socket.socket()  # 创建 socket 对象
-
         self.slot_init()
 
     def slot_init(self):
@@ -36,11 +34,12 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.timer_camera.timeout.connect(self.show_camera)
 
     def connect_server(self):  # 连接服务器
+        self.connect = socket.socket()  # 创建 socket 对象
         ip = self.ipInput.text()
         port = int(self.portInput.text())
         self.connect.connect((ip, port))
 
-        message = {'code': 100}  # len = 13
+        message = {'code': 100}  # 登录，len = 13
         self.connect.send(json.dumps(message).encode())
 
         message = self.connect.recv(1024).decode()
@@ -51,8 +50,9 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
     def send_frame(self):  # 发送一帧数据
         flag, frame = self.camera.cap.read()
-        frameData = {'code': 101, 'data': frame.tolist()}
-        print(len(frameData))
+        # print(frame)
+        print(frame.dtype)
+        frameData = {'code': 350, 'data': frame.tolist()}
 
         frameJsonData = json.dumps(frameData)
         print(len(frameJsonData))
@@ -67,21 +67,18 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         except BaseException as e:
             print(e)
 
-
     def show_camera(self):  # 显示一帧
-        flag, frame = self.camera.cap.read()  # 640*480
+        flag, frame = self.camera.cap.read()  # 640*480, frame type: numpy.ndarray
+        # print(type(frame))  # 921736
+        # print(frame.shape[1])
         show = cv2.resize(frame, (400, 300))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
         self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
 
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = ControllerWindow()
     ui.show()
-
-    ui.show_camera()
-
     sys.exit(app.exec_())

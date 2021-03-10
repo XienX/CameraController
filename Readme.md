@@ -2,7 +2,7 @@
 >Xien  
 >2021/3  
 ## 第三方库  
->pyqt5(+pyqt5-tools)
+>pyqt5(+pyqt5-tools)  
 >opencv-python(cv2)  
 
 
