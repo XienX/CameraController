@@ -8,6 +8,7 @@ import socket
 import sys
 import json
 import time
+from threading import Thread
 
 import cv2
 from PyQt5.QtCore import QTimer
@@ -34,35 +35,48 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.timer_camera.timeout.connect(self.show_camera)
 
     def connect_server(self):  # 连接服务器
-        self.connect = socket.socket()  # 创建 socket 对象
-        ip = self.ipInput.text()
-        port = int(self.portInput.text())
-        self.connect.connect((ip, port))
+        frameThread = Thread(target=self.socket_frame_thread)
+        frameThread.setDaemon(True)
+        frameThread.start()
 
-        message = {'code': 100}  # 登录，len = 13
-        self.connect.send(json.dumps(message).encode())
+    def socket_frame_thread(self):  # 视频发送线程
+        try:
+            self.connect = socket.socket()  # 创建 socket 对象
+            ip = self.ipInput.text()
+            port = int(self.portInput.text())
+            self.connect.connect((ip, port))
 
-        message = self.connect.recv(1024).decode()
-        LoginCode = json.loads(message)['code']
-        print(LoginCode)
+            message = {'code': 100}  # 登录，len = 13
+            self.connect.send(json.dumps(message).encode())
 
-        self.send_frame()
+            message = self.connect.recv(1024).decode()
+            LoginCode = json.loads(message)['code']
+            print(LoginCode)
+
+            self.send_frame_len()
+
+            while 1:
+                self.send_frame()
+                time.sleep(0.1)
+        except BaseException as e:
+            print(e)
+
+    def send_frame_len(self):  # 发送帧数据大小
+        flag, frame = self.camera.cap.read()
+        lenMessage = {'code': 500, 'data': len(frame.tobytes())}  # 帧数据大小
+        self.connect.send(json.dumps(lenMessage).encode())
 
     def send_frame(self):  # 发送一帧数据
         flag, frame = self.camera.cap.read()
         # print(frame)
         # frameData = {'code': 350, 'data': frame.tolist()}
         frameData = frame.tobytes()
-        print(len(frameData))  # 921600
+        # print(len(frameData))  # 921600
         # frameJsonData = json.dumps(frameData)
         # print(len(frameJsonData))
 
-        lenMessage = {'code': 500, 'data': len(frameData)}  # 帧数据大小  ## 48xxxxx 4.6MB+
-        self.connect.send(json.dumps(lenMessage).encode())
-
-
         try:
-            print(self.connect.sendall(frameData))
+            self.connect.sendall(frameData)
         except BaseException as e:
             print(e)
 
