@@ -51,26 +51,26 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
     def send_frame(self):  # 发送一帧数据
         flag, frame = self.camera.cap.read()
         # print(frame)
-        print(frame.dtype)
-        frameData = {'code': 350, 'data': frame.tolist()}
+        # frameData = {'code': 350, 'data': frame.tolist()}
+        frameData = frame.tobytes()
+        print(len(frameData))  # 921600
+        # frameJsonData = json.dumps(frameData)
+        # print(len(frameJsonData))
 
-        frameJsonData = json.dumps(frameData)
-        print(len(frameJsonData))
-
-        lenMessage = {'code': 500, 'data': len(frameJsonData)}  # 帧数据大小  ## 48xxxxx 4.6MB+
+        lenMessage = {'code': 500, 'data': len(frameData)}  # 帧数据大小  ## 48xxxxx 4.6MB+
         self.connect.send(json.dumps(lenMessage).encode())
 
-        print(len(frameJsonData.encode()))
 
         try:
-            print(self.connect.sendall(frameJsonData.encode()))
+            print(self.connect.sendall(frameData))
         except BaseException as e:
             print(e)
 
     def show_camera(self):  # 显示一帧
-        flag, frame = self.camera.cap.read()  # 640*480, frame type: numpy.ndarray
-        # print(type(frame))  # 921736
-        # print(frame.shape[1])
+        flag, frame = self.camera.cap.read()
+        # print(type(frame))  # numpy.ndarray
+        # # print(sys.getsizeof(frame))  # 921736
+        # print(frame.shape)  # (480, 640, 3)
         show = cv2.resize(frame, (400, 300))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
