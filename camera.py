@@ -10,13 +10,18 @@ import cv2
 
 class Camera:
     def __init__(self, camera_number):
-        self.cap = cv2.VideoCapture(camera_number)
+        self.cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
 
     def get(self):
         pass
 
     def move(self):
         pass
+
+    def close(self):
+        pass
+        # self.cap.release()
+        # print('release')
 
 
 if __name__ == '__main__':
