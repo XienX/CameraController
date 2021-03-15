@@ -58,17 +58,14 @@ class ControlThread(QtCore.QThread):
 
             elif message['code'] == 301:
                 self.log_signal.emit('用户名或密码错误')
-                self.connect_button_signal.emit(True)
-                self.close_button_signal.emit(False)
             else:
                 self.log_signal.emit(f'非预期的code {message["code"]}')
-                self.connect_button_signal.emit(True)
-                self.close_button_signal.emit(False)
 
         except BaseException as e:
             self.log_signal.emit(f'连接错误: {e}')
-            self.connect_button_signal.emit(True)
-            self.close_button_signal.emit(False)
+
+        self.connect_button_signal.emit(True)
+        self.close_button_signal.emit(False)
 
     def send_frame_len(self):  # 发送帧数据大小
         flag, frame = self.camera.cap.read()

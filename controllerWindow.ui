@@ -250,29 +250,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="log">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>567</height>
-           </size>
-          </property>
-         </widget>
+         <widget class="QTextBrowser" name="log"/>
         </item>
        </layout>
       </item>
@@ -428,7 +406,6 @@
   <tabstop>portInput</tabstop>
   <tabstop>connectButton</tabstop>
   <tabstop>closeButton</tabstop>
-  <tabstop>log</tabstop>
  </tabstops>
  <resources/>
  <connections/>

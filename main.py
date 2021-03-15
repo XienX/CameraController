@@ -37,6 +37,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
     def slot_init(self):
         self.connectButton.clicked.connect(self.connect_server)
+        self.closeButton.clicked.connect(self.close_connect)
         self.timer_camera.timeout.connect(self.show_camera)
 
     def connect_server(self):  # 连接服务器
@@ -49,6 +50,9 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
     def print_log(self, log_str):  # UI上打印日志
         self.log.append(log_str)
+        # self.cursor = self.tetxBrowser.textCursor()
+        # self.tetxBrowser.moveCursor(self.cursor.End)  # 光标移到最后，这样就会自动显示出来
+        # QtWidgets.QApplication.processEvents()  # 一定加上这个功能，不然有卡顿
 
     def control_connect_button(self, b):  # 控制连接按钮
         if (self.connectButton.isEnabled() and not b) or (not self.connectButton.isEnabled() and b):
@@ -67,6 +71,9 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
         self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
+
+    def close_connect(self):  # 断开连接
+        self.controlThread.close()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:  # 关闭程序
         try:
