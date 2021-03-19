@@ -7,7 +7,6 @@
 
 
 import sys
-
 import cv2
 
 from PyQt5 import QtGui
@@ -26,7 +25,9 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.camera = Camera(0)  # 初始化摄像头
+        self.camera = Camera()  # 初始化摄像头
+        self.camera.set_camera(0)
+        # self.camera.set_servo()
 
         self.timer_camera = QTimer()  # 初始化定时器
         self.timer_camera.start(40)
@@ -38,14 +39,14 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
     def slot_init(self):
         self.connectButton.clicked.connect(self.connect_server)
         self.closeButton.clicked.connect(self.close_connect)
+        self.cameraNumInput.valueChanged.connect(self.change_camera)
         self.timer_camera.timeout.connect(self.show_camera)
 
     def connect_server(self):  # 连接服务器
         self.controlThread = ControlThread(self.userNameInput.text(), self.passwordInput.text(),
                                            self.ipInput.text(), int(self.portInput.text()), self.camera)
         self.controlThread.log_signal.connect(self.print_log)
-        self.controlThread.connect_button_signal.connect(self.control_connect_button)
-        self.controlThread.close_button_signal.connect(self.control_close_button)
+        self.controlThread.enabled_signal.connect(self.control_enabled)
         self.controlThread.start()
 
     def print_log(self, log_str):  # UI上打印日志
@@ -54,23 +55,31 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         # self.tetxBrowser.moveCursor(self.cursor.End)  # 光标移到最后，这样就会自动显示出来
         # QtWidgets.QApplication.processEvents()  # 一定加上这个功能，不然有卡顿
 
-    def control_connect_button(self, b):  # 控制连接按钮
-        if (self.connectButton.isEnabled() and not b) or (not self.connectButton.isEnabled() and b):
-            self.connectButton.setEnabled(b)
+    def control_enabled(self, b):  # 控制是否禁用
+        self.connectButton.setEnabled(b)
+        self.closeButton.setEnabled(not b)
+        self.userNameInput.setEnabled(b)
+        self.passwordInput.setEnabled(b)
+        self.ipInput.setEnabled(b)
+        self.portInput.setEnabled(b)
+        self.cameraNumInput.setEnabled(b)
 
-    def control_close_button(self, b):  # 控制断开连接按钮
-        if (self.closeButton.isEnabled() and not b) or (not self.closeButton.isEnabled() and b):
-            self.closeButton.setEnabled(b)
+    def change_camera(self):  # 改变摄像头
+        if not self.camera.set_camera(int(self.cameraNumInput.text())):
+            self.log.append('无效的摄像头编号')
 
     def show_camera(self):  # 显示一帧
-        flag, frame = self.camera.cap.read()
+        # flag, frame = self.camera.cap.read()
         # print(type(frame))  # numpy.ndarray
         # # print(sys.getsizeof(frame))  # 921736
         # print(frame.shape)  # (480, 640, 3)
-        show = cv2.resize(frame, (400, 300))
-        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
-        self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
+
+        frame = self.camera.get_frame()
+        if frame is not None:
+            show = cv2.resize(frame, (400, 300))
+            show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
+            showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
+            self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
 
     def close_connect(self):  # 断开连接
         self.controlThread.close()

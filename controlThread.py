@@ -16,8 +16,7 @@ from PyQt5.QtCore import *
 class ControlThread(QtCore.QThread):
     #  通过类成员对象定义信号对象
     log_signal = pyqtSignal(str)
-    connect_button_signal = pyqtSignal(bool)
-    close_button_signal = pyqtSignal(bool)
+    enabled_signal = pyqtSignal(bool)
 
     def __init__(self, user_name, password, ip, port, camera):
         super().__init__()
@@ -27,17 +26,17 @@ class ControlThread(QtCore.QThread):
         self.port = port
 
         self.camera = camera
-
         self.frameLen = 0
 
         self.connect = socket.socket()  # 创建 socket 对象
-
         self.isAlive = True
 
     def run(self):
         try:
-            self.connect_button_signal.emit(False)
-            self.close_button_signal.emit(True)
+            if self.camera.cap is None:
+                return
+
+            self.enabled_signal.emit(False)
 
             self.connect.connect((self.ip, self.port))
 
@@ -62,18 +61,19 @@ class ControlThread(QtCore.QThread):
                 self.log_signal.emit(f'非预期的code {message["code"]}')
 
         except BaseException as e:
-            self.log_signal.emit(f'连接错误: {e}')
+            self.log_signal.emit(f'连接已断开')
 
-        self.connect_button_signal.emit(True)
-        self.close_button_signal.emit(False)
+        self.enabled_signal.emit(True)
 
     def send_frame_len(self):  # 发送帧数据大小
-        flag, frame = self.camera.cap.read()
+        # flag, frame = self.camera.cap.read()
+        frame = self.camera.get_frame()
         lenMessage = {'code': 500, 'data': len(frame.tobytes())}  # 帧数据大小
         self.connect.send(json.dumps(lenMessage).encode())
 
     def send_frame(self):  # 发送一帧数据
-        flag, frame = self.camera.cap.read()
+        # flag, frame = self.camera.cap.read()
+        frame = self.camera.get_frame()
         # print(frame)
         frameData = frame.tobytes()
         # print(len(frameData))  # 921600
