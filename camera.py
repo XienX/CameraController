@@ -33,8 +33,8 @@ class Camera:
             return frame
         return None
 
-    def move(self):
-        pass
+    def move(self, direction):
+        print(direction)
 
     def close(self):
         pass

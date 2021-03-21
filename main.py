@@ -7,6 +7,8 @@
 
 
 import sys
+import time
+
 import cv2
 
 from PyQt5 import QtGui
@@ -36,10 +38,18 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         self.slot_init()
 
+        self.cameraNumInput.setValue(1)
+
     def slot_init(self):
         self.connectButton.clicked.connect(self.connect_server)
         self.closeButton.clicked.connect(self.close_connect)
         self.cameraNumInput.valueChanged.connect(self.change_camera)
+
+        self.moveLeftButton.clicked.connect(lambda: self.camera.move('4'))
+        self.moveRightButton.clicked.connect(lambda: self.camera.move('6'))
+        self.moveUpButton.clicked.connect(lambda: self.camera.move('8'))
+        self.moveDownButton.clicked.connect(lambda: self.camera.move('2'))
+
         self.timer_camera.timeout.connect(self.show_camera)
 
     def connect_server(self):  # 连接服务器
@@ -65,8 +75,10 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.cameraNumInput.setEnabled(b)
 
     def change_camera(self):  # 改变摄像头
+        # self.log.append(self.cameraNumInput.text())
         if not self.camera.set_camera(int(self.cameraNumInput.text())):
             self.log.append('无效的摄像头编号')
+        time.sleep(2)  # 未知bug，不添加延时cameraNumInput的值会改变两次，触发两次
 
     def show_camera(self):  # 显示一帧
         # flag, frame = self.camera.cap.read()
