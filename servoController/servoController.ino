@@ -4,35 +4,48 @@
 Servo hServo;  // 水平旋转舵机
 Servo vServo;  // 竖直旋转舵机
 int hPos = 90;
-int vPos = 45;
+int vPos = 90;
 
 void setup() {
   hServo.attach(3);
   vServo.attach(9);
+  
+  hServo.write(hPos);
+  vServo.write(hPos);
 
   Serial.begin(9600);
-//  Keyboard.begin();
 }
 
 void loop() {
-  int pos = 180;
-//  for(; pos < 175; pos += 5){
-//    hServo.write(pos);
-//    delay(100);
-//    vServo.write(pos);
-//    delay(1500);
-//  }
-//                               
-//  for(; pos>=5; pos-=5) {
-//    hServo.write(pos);
-//    delay(100);
-//    vServo.write(pos);
-//    delay(1500);
-//  }
-
   if (Serial.available() > 0) {
-    // read incoming serial data:
     char inChar = Serial.read();
-    hServo.write(pos);
+
+    switch(inChar) {
+      case '4':  // 左
+        if(hPos >= 5) {
+          hPos -= 5;
+          hServo.write(hPos);
+        }
+        break;
+      case '6':  // 右
+        if(hPos <= 175) {
+          hPos += 5;
+          hServo.write(hPos);
+        }
+        break;
+      case '8':  // 上
+        if(vPos <= 175) {
+          vPos += 5;
+          vServo.write(vPos);
+        }
+        break;
+      case '2':  // 下
+        if(vPos >= 5) {
+          vPos -= 5;
+          vServo.write(vPos);
+        }
+        break;
+    }
   }
+  delay(100);
 }
