@@ -39,16 +39,18 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.slot_init()
 
         self.cameraNumInput.setValue(1)
+        self.servoInput.addItems(self.camera.servoList)
 
     def slot_init(self):
         self.connectButton.clicked.connect(self.connect_server)
         self.closeButton.clicked.connect(self.close_connect)
         self.cameraNumInput.valueChanged.connect(self.change_camera)
+        self.servoInput.currentIndexChanged[str].connect(self.change_servo)  # 条目发生改变，发射信号，传递条目内容
 
-        self.moveLeftButton.clicked.connect(lambda: self.camera.move('4'))
-        self.moveRightButton.clicked.connect(lambda: self.camera.move('6'))
-        self.moveUpButton.clicked.connect(lambda: self.camera.move('8'))
-        self.moveDownButton.clicked.connect(lambda: self.camera.move('2'))
+        self.moveLeftButton.clicked.connect(lambda: self.move_servo('4'))
+        self.moveRightButton.clicked.connect(lambda: self.move_servo('6'))
+        self.moveUpButton.clicked.connect(lambda: self.move_servo('8'))
+        self.moveDownButton.clicked.connect(lambda: self.move_servo('2'))
 
         self.timer_camera.timeout.connect(self.show_camera)
 
@@ -79,6 +81,15 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         if not self.camera.set_camera(int(self.cameraNumInput.text())):
             self.log.append('无效的摄像头编号')
         time.sleep(2)  # 未知bug，不添加延时cameraNumInput的值会改变两次，触发两次
+
+    def change_servo(self, port):  # 设置舵机端口
+        print('c')
+        if not self.camera.set_servo(port):
+            self.log.append('云台连接失败')
+
+    def move_servo(self, direction):  # 控制云台
+        if not self.camera.move(direction):
+            self.log.append('云台错误')
 
     def show_camera(self):  # 显示一帧
         # flag, frame = self.camera.cap.read()

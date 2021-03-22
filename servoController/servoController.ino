@@ -22,14 +22,15 @@ void loop() {
 
     switch(inChar) {
       case '4':  // 左
-        if(hPos >= 5) {
-          hPos -= 5;
-          hServo.write(hPos);
-        }
-        break;
-      case '6':  // 右
         if(hPos <= 175) {
           hPos += 5;
+          hServo.write(hPos);
+        }
+
+        break;
+      case '6':  // 右
+        if(hPos >= 5) {
+          hPos -= 5;
           hServo.write(hPos);
         }
         break;

@@ -6,12 +6,16 @@
 # @notice ：Camera类
 
 import cv2
+import serial
+import serial.tools.list_ports
 
 
 class Camera:
     def __init__(self):
         self.cap = None
-        self.servoPort = None
+        self.servo = None
+
+        self.servoList = [i.name for i in list(serial.tools.list_ports.comports())]
 
     def set_camera(self, camera_number):
         self.cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
@@ -22,7 +26,17 @@ class Camera:
             return False
 
     def set_servo(self, servo_port):
-        self.servoPort = servo_port
+        try:
+            self.servo = serial.Serial(servo_port, 9600)
+            print(self.servo.name)
+            if not self.servo.isOpen():
+                self.servo.open()
+                print('open', self.servo.isOpen())
+            return True
+        except BaseException as e:
+            # print(e)
+            self.servo = None
+            return False
 
     def get_frame(self):
         if self.cap is None:
@@ -34,7 +48,12 @@ class Camera:
         return None
 
     def move(self, direction):
-        print(direction)
+        try:
+            self.servo.write(direction.encode())
+            return True
+        except BaseException as e:
+            print(e)
+            return False
 
     def close(self):
         pass
