@@ -38,7 +38,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         self.slot_init()
 
-        self.cameraNumInput.setValue(1)
+        # self.cameraNumInput.setValue(1)
         self.servoInput.addItems(self.camera.servoList)
 
     def slot_init(self):
@@ -75,6 +75,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.ipInput.setEnabled(b)
         self.portInput.setEnabled(b)
         self.cameraNumInput.setEnabled(b)
+        self.servoInput.setEnabled(b)
 
     def change_camera(self):  # 改变摄像头
         # self.log.append(self.cameraNumInput.text())
@@ -83,7 +84,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         time.sleep(2)  # 未知bug，不添加延时cameraNumInput的值会改变两次，触发两次
 
     def change_servo(self, port):  # 设置舵机端口
-        print('c')
+        # print('c')
         if not self.camera.set_servo(port):
             self.log.append('云台连接失败')
 
@@ -99,7 +100,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         frame = self.camera.get_frame()
         if frame is not None:
-            show = cv2.resize(frame, (400, 300))
+            show = cv2.resize(frame, (480, 360))
             show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
             showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
             self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))

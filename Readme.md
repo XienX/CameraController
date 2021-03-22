@@ -6,6 +6,6 @@
 ## 第三方库  
 >pyqt5(+pyqt5-tools)  
 >opencv-python(cv2)  
-
+>pyserial(serial)  
 
 ## 文件  
