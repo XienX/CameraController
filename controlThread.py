@@ -3,14 +3,16 @@
 # @Author : XieXin
 # @Email : 1324548879@qq.com
 # @File : controlThread.py
-# @notice ：
+# @notice ：ControlThread类--连接控制线程
 
 import json
 import socket
-import time
 
+import cv2
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
+
+from frameSendThread import FrameSendThread
 
 
 class ControlThread(QtCore.QThread):
@@ -26,10 +28,12 @@ class ControlThread(QtCore.QThread):
         self.port = port
 
         self.camera = camera
-        self.frameLen = 0
+        # self.frameLen = 0
 
         self.connect = socket.socket()  # 创建 socket 对象
-        self.isAlive = True
+        # self.isAlive = True
+
+        self.frameSendThread = None
 
     def run(self):
         try:
@@ -48,39 +52,56 @@ class ControlThread(QtCore.QThread):
             print(message)
 
             if message['code'] == 300:
-                self.log_signal.emit('登录成功，推流中')
-                self.send_frame_len()
+                self.log_signal.emit('登录成功')
 
-                while self.isAlive:
-                    self.send_frame()
-                    time.sleep(0.1)
+                self.send_preview_frame()
+
+                while 1:
+                    operation = json.loads(self.connect.recv(1024).decode())
+                    print(operation)
+
+                    if operation['code'] == 320:  # 请求视频流
+                        self.frameSendThread = FrameSendThread(self.camera, self.ip, operation['port'])
+                        self.frameSendThread.setDaemon(True)
+                        self.frameSendThread.start()
+                    elif operation['code'] == 510:  # 清晰度设置
+                        pass
+                    elif operation['code'] == 511:  # 帧数设置
+                        pass
+                    elif operation['code'] == 520:  # 遥控指令
+                        pass
 
             elif message['code'] == 301:
                 self.log_signal.emit('用户名或密码错误')
             else:
                 self.log_signal.emit(f'非预期的code {message["code"]}')
 
-        except BaseException as e:
+        except BaseException:
             self.log_signal.emit(f'连接已断开')
 
         self.enabled_signal.emit(True)
 
-    def send_frame_len(self):  # 发送帧数据大小
-        # flag, frame = self.camera.cap.read()
+    def send_preview_frame(self):  # 发送预览图
         frame = self.camera.get_frame()
-        lenMessage = {'code': 500, 'data': len(frame.tobytes())}  # 帧数据大小
-        self.connect.send(json.dumps(lenMessage).encode())
+        if frame is not None:
+            frame = cv2.resize(frame, (160, 120))
+            frameData = frame.tobytes()
+            # print(len(frameData))
+            self.connect.sendall(frameData)
 
-    def send_frame(self):  # 发送一帧数据
-        # flag, frame = self.camera.cap.read()
-        frame = self.camera.get_frame()
-        # print(frame)
-        frameData = frame.tobytes()
-        # print(len(frameData))  # 921600
-        self.connect.sendall(frameData)
+    # def send_frame_len(self):  # 发送帧数据大小
+    #     # flag, frame = self.camera.cap.read()
+    #     frame = self.camera.get_frame()
+    #     lenMessage = {'code': 500, 'data': len(frame.tobytes())}  # 帧数据大小
+    #     self.connect.send(json.dumps(lenMessage).encode())
+    #
 
     def close(self):  # 结束
-        self.isAlive = False
+        # self.isAlive = False
         # self.connect.shutdown(2)
-        print('shutdown')
+
+        if self.frameSendThread is not None and self.frameSendThread.isAlive:
+            self.frameSendThread.close()
+
         self.connect.close()
+        print('shutdown')

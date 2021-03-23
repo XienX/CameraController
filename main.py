@@ -5,7 +5,6 @@
 # @File : main.py
 # @notice ：程序入口，ControllerWindow类
 
-
 import sys
 import time
 

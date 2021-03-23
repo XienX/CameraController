@@ -33,7 +33,7 @@ class Camera:
                 self.servo.open()
                 print('open', self.servo.isOpen())
             return True
-        except BaseException as e:
+        except BaseException:
             # print(e)
             self.servo = None
             return False
