@@ -10,8 +10,8 @@ void setup() {
   hServo.attach(3);
   vServo.attach(9);
   
-  hServo.write(hPos);
-  vServo.write(hPos);
+//  hServo.write(hPos);
+//  vServo.write(hPos);
 
   Serial.begin(9600);
 }
@@ -22,27 +22,27 @@ void loop() {
 
     switch(inChar) {
       case '4':  // 左
-        if(hPos <= 175) {
-          hPos += 5;
+        if(hPos <= 177) {
+          hPos += 3;
           hServo.write(hPos);
         }
 
         break;
       case '6':  // 右
-        if(hPos >= 5) {
-          hPos -= 5;
+        if(hPos >= 3) {
+          hPos -= 3;
           hServo.write(hPos);
         }
         break;
       case '8':  // 上
-        if(vPos <= 175) {
-          vPos += 5;
+        if(vPos <= 177) {
+          vPos += 3;
           vServo.write(vPos);
         }
         break;
       case '2':  // 下
-        if(vPos >= 5) {
-          vPos -= 5;
+        if(vPos >= 3) {
+          vPos -= 3;
           vServo.write(vPos);
         }
         break;

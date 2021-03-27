@@ -37,7 +37,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         self.slot_init()
 
-        # self.cameraNumInput.setValue(1)
+        self.cameraNumInput.setValue(1)
         self.servoInput.addItems(self.camera.servoList)
 
     def slot_init(self):
@@ -58,13 +58,11 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
                                            self.ipInput.text(), int(self.portInput.text()), self.camera)
         self.controlThread.log_signal.connect(self.print_log)
         self.controlThread.enabled_signal.connect(self.control_enabled)
+        self.controlThread.move_signal.connect(self.move_servo)
         self.controlThread.start()
 
     def print_log(self, log_str):  # UI上打印日志
         self.log.append(log_str)
-        # self.cursor = self.tetxBrowser.textCursor()
-        # self.tetxBrowser.moveCursor(self.cursor.End)  # 光标移到最后，这样就会自动显示出来
-        # QtWidgets.QApplication.processEvents()  # 一定加上这个功能，不然有卡顿
 
     def control_enabled(self, b):  # 控制是否禁用
         self.connectButton.setEnabled(b)

@@ -19,6 +19,7 @@ class ControlThread(QtCore.QThread):
     #  通过类成员对象定义信号对象
     log_signal = pyqtSignal(str)
     enabled_signal = pyqtSignal(bool)
+    move_signal = pyqtSignal(str)
 
     def __init__(self, user_name, password, ip, port, camera):
         super().__init__()
@@ -69,7 +70,9 @@ class ControlThread(QtCore.QThread):
                     elif operation['code'] == 511:  # 帧数设置
                         pass
                     elif operation['code'] == 520:  # 遥控指令
-                        pass
+                        self.move_signal.emit(operation['move'])
+
+                    # 忽略 340 心跳包
 
             elif message['code'] == 301:
                 self.log_signal.emit('用户名或密码错误')
@@ -100,7 +103,7 @@ class ControlThread(QtCore.QThread):
         # self.isAlive = False
         # self.connect.shutdown(2)
 
-        if self.frameSendThread is not None and self.frameSendThread.isAlive:
+        if self.frameSendThread is not None and self.frameSendThread.is_alive():
             self.frameSendThread.close()
 
         self.connect.close()
