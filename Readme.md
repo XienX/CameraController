@@ -7,5 +7,6 @@
 >pyqt5(+pyqt5-tools)  
 >opencv-python(cv2)  
 >pyserial(serial)  
+>Pillow(PIL)  
 
 ## 文件  

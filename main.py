@@ -4,11 +4,12 @@
 # @Email : 1324548879@qq.com
 # @File : main.py
 # @notice ：程序入口，ControllerWindow类
-
+import random
 import sys
 import time
 
 import cv2
+from PIL import Image
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QTimer
@@ -37,7 +38,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         self.slot_init()
 
-        self.cameraNumInput.setValue(1)
+        # self.cameraNumInput.setValue(1)
         self.servoInput.addItems(self.camera.servoList)
 
     def slot_init(self):
@@ -75,10 +76,10 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.servoInput.setEnabled(b)
 
     def change_camera(self):  # 改变摄像头
-        # self.log.append(self.cameraNumInput.text())
+        self.cameraNumInput.setEnabled(False)
         if not self.camera.set_camera(int(self.cameraNumInput.text())):
             self.log.append('无效的摄像头编号')
-        time.sleep(2)  # 未知bug，不添加延时cameraNumInput的值会改变两次，触发两次
+        self.cameraNumInput.setEnabled(True)
 
     def change_servo(self, port):  # 设置舵机端口
         # print('c')
@@ -101,6 +102,10 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
             show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
             showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
             self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
+
+            # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # cv的BGR 转 PIL的RGB
+            # im = Image.fromarray(frame)
+            # im.save(f"{random.randint(0, 1000000)}.jpg")  # 测试大小在30KB左右
 
     def close_connect(self):  # 断开连接
         self.controlThread.close()
