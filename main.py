@@ -4,12 +4,10 @@
 # @Email : 1324548879@qq.com
 # @File : main.py
 # @notice ：程序入口，ControllerWindow类
-import random
+
 import sys
-import time
 
 import cv2
-from PIL import Image
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QTimer
@@ -102,10 +100,6 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
             show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
             showImage = QImage(show.data, show.shape[1], show.shape[0], QImage.Format_RGB888)
             self.cameraLabel.setPixmap(QPixmap.fromImage(showImage))
-
-            # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # cv的BGR 转 PIL的RGB
-            # im = Image.fromarray(frame)
-            # im.save(f"{random.randint(0, 1000000)}.jpg")  # 测试大小在30KB左右
 
     def close_connect(self):  # 断开连接
         self.controlThread.close()

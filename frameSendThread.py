@@ -5,9 +5,14 @@
 # @File : frameSendThread.py
 # @notice ：FrameSendThread类--帧发送线程
 
+import io
+import json
 import socket
 import time
 from threading import Thread
+
+import cv2
+from PIL import Image
 
 
 class FrameSendThread(Thread):  # 视频帧的发送线程
@@ -37,12 +42,28 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
         print('FrameSendThread end')
 
     def send_frame(self):  # 发送一帧数据
-        # flag, frame = self.camera.cap.read()
+        # # flag, frame = self.camera.cap.read()
+        # frame = self.camera.get_frame()
+        # # print(frame)
+        # frameData = frame.tobytes()
+        # # print(len(frameData))  # 921600
+        # self.connect.sendall(frameData)
+
         frame = self.camera.get_frame()
-        # print(frame)
-        frameData = frame.tobytes()
-        # print(len(frameData))  # 921600
-        self.connect.sendall(frameData)
+        if frame is not None:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # cv的BGR 转 PIL的RGB
+            im = Image.fromarray(frame)
+            imgByteArr = io.BytesIO()
+            im.save(imgByteArr, format='JPEG')
+            frameData = imgByteArr.getvalue()
+            print(len(frameData))  # 29xxx - 34xxx
+
+            # 先发送frame大小
+            message = {'code': 500, 'frameLen': len(frameData)}
+            self.connect.send(json.dumps(message).encode())
+
+            # 发送实际frame
+            self.connect.sendall(frameData)
 
     def close(self):  # 结束
         self.connect.close()
