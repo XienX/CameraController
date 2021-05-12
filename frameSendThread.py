@@ -19,6 +19,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
     def __init__(self, camera, ip, port):
         super().__init__()
 
+        self.definition = 480
         self.camera = camera
 
         self.ip = ip
@@ -34,7 +35,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
 
             while self.isAlive:
                 self.send_frame()
-                time.sleep(0.1)
+                time.sleep(0.05)
 
         except BaseException as e:
             print(e)
@@ -51,6 +52,9 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
 
         frame = self.camera.get_frame()
         if frame is not None:
+            if self.definition == 360:
+                frame = cv2.resize(frame, (480, 360))
+
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # cv的BGR 转 PIL的RGB
             im = Image.fromarray(frame)
             imgByteArr = io.BytesIO()

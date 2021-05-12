@@ -55,7 +55,7 @@ class ControlThread(QtCore.QThread):
             if message['code'] == 300:
                 self.log_signal.emit('登录成功')
 
-                self.send_preview_frame()
+                # self.send_preview_frame()
 
                 while 1:
                     operation = json.loads(self.connect.recv(1024).decode())
@@ -66,7 +66,9 @@ class ControlThread(QtCore.QThread):
                         self.frameSendThread.setDaemon(True)
                         self.frameSendThread.start()
                     elif operation['code'] == 510:  # 清晰度设置
-                        pass
+                        self.frameSendThread.definition = operation['definition']
+                        self.connect.send(json.dumps({'code': 530}).encode())  # 成功
+
                     elif operation['code'] == 511:  # 帧数设置
                         pass
                     elif operation['code'] == 520:  # 遥控指令

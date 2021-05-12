@@ -36,7 +36,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
 
         self.slot_init()
 
-        # self.cameraNumInput.setValue(1)
+        self.cameraNumInput.setValue(1)
         self.servoInput.addItems(self.camera.servoList)
 
     def slot_init(self):
