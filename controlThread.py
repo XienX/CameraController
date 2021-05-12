@@ -68,9 +68,9 @@ class ControlThread(QtCore.QThread):
                     elif operation['code'] == 510:  # 清晰度设置
                         self.frameSendThread.definition = operation['definition']
                         self.connect.send(json.dumps({'code': 530}).encode())  # 成功
-
                     elif operation['code'] == 511:  # 帧数设置
-                        pass
+                        self.frameSendThread.sleepTime = operation['rate']
+                        self.connect.send(json.dumps({'code': 530}).encode())  # 成功
                     elif operation['code'] == 520:  # 遥控指令
                         self.move_signal.emit(operation['move'])
 
@@ -85,6 +85,7 @@ class ControlThread(QtCore.QThread):
             self.log_signal.emit(f'连接已断开')
 
         self.enabled_signal.emit(True)
+        print('controlThread close')
 
     def send_preview_frame(self):  # 发送预览图
         frame = self.camera.get_frame()

@@ -20,6 +20,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
         super().__init__()
 
         self.definition = 480
+        self.sleepTime = 0.04
         self.camera = camera
 
         self.ip = ip
@@ -35,7 +36,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
 
             while self.isAlive:
                 self.send_frame()
-                time.sleep(0.05)
+                time.sleep(self.sleepTime)
 
         except BaseException as e:
             print(e)
