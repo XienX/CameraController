@@ -61,12 +61,13 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
             imgByteArr = io.BytesIO()
             im.save(imgByteArr, format='JPEG')
             frameData = imgByteArr.getvalue()
-            print(len(frameData))  # 29xxx - 34xxx
+            print(len(frameData))  # 29xxx  16xxx
 
             # 先发送frame大小
-            message = {'code': 500, 'frameLen': len(frameData)}
-            self.connect.send(json.dumps(message).encode())
-
+            # message = {'code': 500, 'frameLen': len(frameData)}
+            # self.connect.send(json.dumps(message).encode())
+            # time.sleep(0.02)
+            self.connect.send(len(frameData).to_bytes(4, byteorder='big'))
             # 发送实际frame
             self.connect.sendall(frameData)
 

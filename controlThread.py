@@ -85,6 +85,10 @@ class ControlThread(QtCore.QThread):
             self.log_signal.emit(f'连接已断开')
 
         self.enabled_signal.emit(True)
+
+        if self.frameSendThread is not None and self.frameSendThread.is_alive():
+            self.frameSendThread.close()
+
         print('controlThread close')
 
     def send_preview_frame(self):  # 发送预览图
@@ -103,11 +107,5 @@ class ControlThread(QtCore.QThread):
     #
 
     def close(self):  # 结束
-        # self.isAlive = False
-        # self.connect.shutdown(2)
-
-        if self.frameSendThread is not None and self.frameSendThread.is_alive():
-            self.frameSendThread.close()
-
         self.connect.close()
         print('shutdown')
