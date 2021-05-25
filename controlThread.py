@@ -50,7 +50,7 @@ class ControlThread(QtCore.QThread):
 
             jsonMessage = self.connect.recv(1024).decode()
             message = json.loads(jsonMessage)
-            print(message)
+            # print(message)
 
             if message['code'] == 300:
                 self.log_signal.emit('登录成功')
@@ -59,7 +59,7 @@ class ControlThread(QtCore.QThread):
 
                 while 1:
                     operation = json.loads(self.connect.recv(1024).decode())
-                    print(operation)
+                    # print(operation)
 
                     if operation['code'] == 320:  # 请求视频流
                         self.frameSendThread = FrameSendThread(self.camera, self.ip, operation['port'])
@@ -89,7 +89,7 @@ class ControlThread(QtCore.QThread):
         if self.frameSendThread is not None and self.frameSendThread.is_alive():
             self.frameSendThread.close()
 
-        print('controlThread close')
+        # print('controlThread close')
 
     def send_preview_frame(self):  # 发送预览图
         frame = self.camera.get_frame()
@@ -108,4 +108,4 @@ class ControlThread(QtCore.QThread):
 
     def close(self):  # 结束
         self.connect.close()
-        print('shutdown')
+        # print('shutdown')

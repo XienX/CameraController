@@ -28,10 +28,10 @@ class Camera:
     def set_servo(self, servo_port):
         try:
             self.servo = serial.Serial(servo_port, 9600)
-            print(self.servo.name)
+            # print(self.servo.name)
             if not self.servo.isOpen():
                 self.servo.open()
-                print('open', self.servo.isOpen())
+                # print('open', self.servo.isOpen())
             return True
         except BaseException:
             # print(e)

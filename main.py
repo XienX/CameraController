@@ -26,7 +26,7 @@ class ControllerWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.camera = Camera()  # 初始化摄像头
-        self.camera.set_camera(0)
+        # self.camera.set_camera(0)
 
         self.timer_camera = QTimer()  # 初始化定时器
         self.timer_camera.start(40)

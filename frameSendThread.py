@@ -6,7 +6,6 @@
 # @notice ：FrameSendThread类--帧发送线程
 
 import io
-import json
 import socket
 import time
 from threading import Thread
@@ -41,7 +40,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
         except BaseException as e:
             print(e)
 
-        print('FrameSendThread end')
+        # print('FrameSendThread end')
 
     def send_frame(self):  # 发送一帧数据
         # # flag, frame = self.camera.cap.read()
@@ -61,7 +60,7 @@ class FrameSendThread(Thread):  # 视频帧的发送线程
             imgByteArr = io.BytesIO()
             im.save(imgByteArr, format='JPEG')
             frameData = imgByteArr.getvalue()
-            print(len(frameData))  # 29xxx  16xxx
+            # print(len(frameData))  # 29xxx  16xxx
 
             # 先发送frame大小
             # message = {'code': 500, 'frameLen': len(frameData)}
